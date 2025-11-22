@@ -16,20 +16,23 @@ filenum=$(echo "$file" | tr \| \\n | wc -l)
 # List of each file separated by newlines
 files=$(echo "$file" | tr \| \\n)
 
-# Make sure user knows they have selected more than one file
-if [ "$filenum" -gt 1 ] ; then
-    zenity --question --text="Do you want to apply a watermark to more than one file?"
-    # Allow user to cancel if they change their mind
-    if [ "$?" = "1" ] ; then exit 1 ; fi
-fi
-
 # File must be a png, jp(e)g, or webp
 validtypes="(.png|.jpe?g|.webp)"
 for file in $files; do
     ! [[ "$file" =~ $validtypes ]] && \
-        zenity --error --text="Unsupported filetype, must be png, jpg, or webp" && \
+        zenity --error --text="\"$file\" has an unsupported filetype, must be png, jpg, or webp" && \
         exit 1
 done
+
+# Make sure user knows they have selected more than one file
+if [ "$filenum" -gt 1 ] ; then
+    zenity --question \
+           --text="Do you want to apply a watermark to $filenum files?\nDuplicates will be made of all:\n\n$files" \
+           --no-wrap \
+           --no-markup
+    # Allow user to cancel if they change their mind
+    if [ "$?" = "1" ] ; then exit 1 ; fi
+fi
 
 watermark=$(zenity --title="What would you like your watermark to be?"\
                    --entry)
