@@ -11,5 +11,9 @@ wm.sh
 To get help:
 
 ```
-wm.sh -h OR wm.sh --help
+wm.sh -h
+```
+
+```
+wm.sh --help
 ```
