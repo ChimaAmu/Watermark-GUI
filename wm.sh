@@ -6,6 +6,20 @@ tmpfile="/tmp/watermark.$$.png"
 fontsize="44"
 
 
+if [ $# -gt 0 ]; then
+    if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
+        # zenity --text-info --filename=README.md
+        zenity --info \
+               --text="This is a simple bash+zenity script that allows you to watermark any number of files with text of your choice.\nUsage: \nwm.sh to run the script\nwm.sh -h OR --help for help"
+        exit 0
+    else
+        echo "Usage: $(basename "$0") to run the script
+                     $(basename "$0") -h
+                  or $(basename "$0") --help for help";
+        exit 0
+    fi
+fi
+
 file=$(zenity --title="Select file(s) to watermark" \
               --file-selection \
               --multiple)
