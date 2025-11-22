@@ -4,13 +4,12 @@ This is a simple bash script using zenity for the GUI that helps you to watermar
 ## Usage
 To run the program:
 
-'''
+```
 wm.sh 
-'''
-
+```
 
 To get help:
 
-'''
+```
 wm.sh -h OR wm.sh --help
-'''
+```
