@@ -36,10 +36,10 @@ nospace=$(echo "$files" | tr \  :)
 
 # File must be a png, jp(e)g, or webp
 validtypes="(.png|.jpe?g|.webp)"
-for file in $nospace; do
-    # Convert $nospace files back to their original names
-    originalname=$(echo "$file" | tr : \  )
-    ! [[ "$file" =~ $validtypes ]] && \
+for filename in $nospace; do
+    # Convert $nospace filenames back to their original names
+    originalname=$(echo "$filename" | tr : \  )
+    ! [[ "$filename" =~ $validtypes ]] && \
         zenity --error --text="\"$originalname\" has an unsupported filetype, must be png, jpg, or webp" && \
         exit 1
 done
