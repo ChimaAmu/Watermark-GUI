@@ -59,11 +59,12 @@ watermark=$(zenity --title="What would you like your watermark to be?"\
 if [ "$?" = "1" ] ; then exit 1 ; fi
 
 
-for file in $files; do
+for filename in $nospace; do
     # Delete temporary file after program closes
     trap '$(which rm) -f $tmpfile' 0 1 15
+    originalname=$(echo "$filename" | tr : \  )
 
-    dimensions="$(identify -format "%G" "$file")"
+    dimensions="$(identify -format "%G" "$originalname")"
 
     # Create temporary watermark overlay
     convert -size "$dimensions" xc:none -pointsize $fontsize -gravity south \
@@ -71,11 +72,11 @@ for file in $files; do
         "$tmpfile"
 
     # Composite overlay and original file
-    suffix="$(echo "$file" | rev | cut -d. -f1 | rev)"
-    prefix="$(echo "$file" | rev | cut -d. -f2- | rev)"
+    suffix="$(echo "$originalname" | rev | cut -d. -f1 | rev)"
+    prefix="$(echo "$originalname" | rev | cut -d. -f2- | rev)"
 
     newfilename="$prefix+wm.$suffix"
-    composite -dissolve 75% -gravity south $tmpfile "$file" "$newfilename"
+    composite -dissolve 75% -gravity south $tmpfile "$originalname" "$newfilename"
 
     if [ -r "$newfilename" ] ; then
         echo "Created new watermarked image file $newfilename"
