@@ -29,12 +29,18 @@ file=$(zenity --title="Select file(s) to watermark" \
 filenum=$(echo "$file" | tr \| \\n | wc -l)
 # List of each file separated by newlines
 files=$(echo "$file" | tr \| \\n)
+# List of each file where any spaces are replaced with an arbitrary character
+# This is so files with spaces in them (e.g. "test file.jpg") don't break up
+# into "test" and "file.jpg" when being checked in the for loop below
+nospace=$(echo "$files" | tr \  :)
 
 # File must be a png, jp(e)g, or webp
 validtypes="(.png|.jpe?g|.webp)"
-for file in $files; do
+for file in $nospace; do
+    # Convert $nospace files back to their original names
+    originalname=$(echo "$file" | tr : \  )
     ! [[ "$file" =~ $validtypes ]] && \
-        zenity --error --text="\"$file\" has an unsupported filetype, must be png, jpg, or webp" && \
+        zenity --error --text="\"$originalname\" has an unsupported filetype, must be png, jpg, or webp" && \
         exit 1
 done
 
