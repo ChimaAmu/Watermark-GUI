@@ -8,7 +8,6 @@ fontsize="44"
 
 if [ $# -gt 0 ]; then
     if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
-        # zenity --text-info --filename=README.md
         zenity --info \
                --text="This is a simple bash+zenity script that allows you to watermark any number of files with text of your choice.\nUsage: \nwm.sh to run the script\nwm.sh -h OR --help for help"
         exit 0
@@ -67,9 +66,8 @@ for filename in $nospace; do
     dimensions="$(identify -format "%G" "$originalname")"
 
     # Create temporary watermark overlay
-    convert -size "$dimensions" xc:none -pointsize $fontsize -gravity south \
-        -draw "fill black text 1,1 '$watermark' text 0,0 '$watermark' fill white text 2,2 '$watermark'" \
-        "$tmpfile"
+    magick -size "$dimensions" xc:none -pointsize $fontsize -gravity south \
+        -fill white -stroke black -draw "text 0,0 $watermark" "$tmpfile"
 
     # Composite overlay and original file
     suffix="$(echo "$originalname" | rev | cut -d. -f1 | rev)"
@@ -77,7 +75,8 @@ for filename in $nospace; do
 
     newfilename="$prefix+wm.$suffix"
     composite -dissolve 75% -gravity south $tmpfile "$originalname" "$newfilename"
-
+ 
+    # If file exists
     if [ -r "$newfilename" ] ; then
         echo "Created new watermarked image file $newfilename"
         # "OK" selection exit code is 0
