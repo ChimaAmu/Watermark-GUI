@@ -4,20 +4,25 @@
 
 tmpfile="/tmp/watermark.$$.png"
 fontsize="44"
+colour='white'
 
-
-if [ $# -gt 0 ]; then
-    if [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
-        zenity --info \
-               --text="This is a simple bash+zenity script that allows you to watermark any number of files with text of your choice.\nUsage: \nwm.sh to run the script\nwm.sh -h OR --help for help"
-        exit 0
-    else
+usage() {
         echo "Usage: $(basename "$0") to run the script
                      $(basename "$0") -h
                   or $(basename "$0") --help for help";
         exit 0
-    fi
-fi
+}
+
+while [ $# -gt 0 ]
+do
+    case $1 in
+        -h|--help) zenity --info \
+                          --text="This is a simple bash+zenity script that allows you to watermark any number of files with text of your choice.\nUsage: \nwm.sh to run the script\nwm.sh -h OR --help for help" ;
+                    exit 0 ;;
+        -c|--color|--colour) colour=$2 ; break ;;
+        * ) usage ;;
+    esac
+done
 
 file=$(zenity --title="Select file(s) to watermark" \
               --file-selection \
@@ -61,13 +66,14 @@ if [ "$?" = "1" ] ; then exit 1 ; fi
 for filename in $nospace; do
     # Delete temporary file after program closes
     trap '$(which rm) -f $tmpfile' 0 1 15
+    # Convert changed files back to original name by switching colon and space
     originalname=$(echo "$filename" | tr : \  )
 
     dimensions="$(identify -format "%G" "$originalname")"
 
     # Create temporary watermark overlay
     magick -size "$dimensions" xc:none -pointsize $fontsize -gravity south \
-        -fill white -stroke black -draw "text 0,0 $watermark" "$tmpfile"
+        -fill "$colour" -stroke black -draw "text 0,0 $watermark" "$tmpfile"
 
     # Composite overlay and original file
     suffix="$(echo "$originalname" | rev | cut -d. -f1 | rev)"
@@ -75,6 +81,9 @@ for filename in $nospace; do
 
     newfilename="$prefix+wm.$suffix"
     composite -dissolve 75% -gravity south $tmpfile "$originalname" "$newfilename"
+    # magick "$originalname" -size "$dimensions" xc:none -pointsize $fontsize \
+    #     -gravity south -fill white -stroke black -annotate text +0+0 "$watermark" \
+    #         "$newfilename"
  
     # If file exists
     if [ -r "$newfilename" ] ; then
