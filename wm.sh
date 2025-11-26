@@ -10,8 +10,10 @@ stroke=''
 usage() {
         echo "Usage: $(basename "$0") to run the script
                      $(basename "$0") -h
-                  or $(basename "$0") --help for help";
-        exit 1
+                  or $(basename "$0") --help for help
+                     $(basename "$0") -c {colour} to choose fill colour (default white)
+                     $(basename "$0") -s {colour} to choose stroke colour (default none)";
+        exit 0
 }
 
 while [ $# -gt 0 ]
@@ -80,7 +82,7 @@ for filename in $nospace; do
 
     # Create temporary watermark overlay
     magick -size "$dimensions" xc:none -pointsize $fontsize -gravity south \
-        -fill "$colour" $stroke -draw "text 0,0 $watermark" "$tmpfile"
+        -fill "$colour" "$stroke" -draw "text 0,0 $watermark" "$tmpfile"
 
     # Composite overlay and original file
     suffix="$(echo "$originalname" | rev | cut -d. -f1 | rev)"
@@ -88,9 +90,6 @@ for filename in $nospace; do
 
     newfilename="$prefix+wm.$suffix"
     composite -dissolve 75% -gravity south $tmpfile "$originalname" "$newfilename"
-    # magick "$originalname" -size "$dimensions" xc:none -pointsize $fontsize \
-    #     -gravity south -fill white -stroke black -annotate text +0+0 "$watermark" \
-    #         "$newfilename"
  
     # If file exists
     if [ -r "$newfilename" ] ; then
