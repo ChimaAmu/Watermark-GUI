@@ -5,28 +5,35 @@
 tmpfile="/tmp/watermark.$$.png"
 fontsize="44"
 colour='white'
+stroke=''
 
 usage() {
         echo "Usage: $(basename "$0") to run the script
                      $(basename "$0") -h
                   or $(basename "$0") --help for help";
-        exit 0
+        exit 1
 }
 
 while [ $# -gt 0 ]
 do
     case $1 in
-        -h|--help) zenity --info \
+        -h | --help) 
+            zenity --info \
                           --text="This is a simple bash+zenity script that allows you to watermark any number of files with text of your choice.\nUsage: \nwm.sh to run the script\nwm.sh -h OR --help for help" ;
                     exit 0 ;;
-        -c|--color|--colour) colour=$2 ; break ;;
-        * ) usage ;;
+        -s | --stroke) 
+            stroke="-stroke $2";;
+        -c | --colour | --color ) 
+            colour="$2";;
+        \? ) usage ;;
     esac
+    shift
 done
 
 file=$(zenity --title="Select file(s) to watermark" \
               --file-selection \
               --multiple)
+if [ $? -eq 1 ] ; then echo No File Selected; exit 1 ; fi
 
 # Find how many files were selected by converting the default separator ('|')
 # into newlines ('\n'), and then counting how many lines there are with wc -l
@@ -73,7 +80,7 @@ for filename in $nospace; do
 
     # Create temporary watermark overlay
     magick -size "$dimensions" xc:none -pointsize $fontsize -gravity south \
-        -fill "$colour" -stroke black -draw "text 0,0 $watermark" "$tmpfile"
+        -fill "$colour" $stroke -draw "text 0,0 $watermark" "$tmpfile"
 
     # Composite overlay and original file
     suffix="$(echo "$originalname" | rev | cut -d. -f1 | rev)"
