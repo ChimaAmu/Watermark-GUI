@@ -22,10 +22,10 @@ do
                           --text="This is a simple bash+zenity script that allows you to watermark any number of files with text of your choice.\nUsage: \nwm.sh to run the script\nwm.sh -h OR --help for help" ;
                     exit 0 ;;
         -s | --stroke) 
-            stroke="-stroke $2";;
+            stroke="-stroke $2"; shift;;
         -c | --colour | --color ) 
-            colour="$2";;
-        \? ) usage ;;
+            colour="$2"; shift;;
+        * ) usage ;;
     esac
     shift
 done
